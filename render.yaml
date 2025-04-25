@@ -2,34 +2,32 @@ services:
   # Backend API service
   - type: web
     name: apple-certificate-api
-    env: node
+    runtime: node
     plan: free
-    buildCommand: cd server && npm ci
-    startCommand: cd server && npm start
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
     envVars:
-       key: DROPBOX_APP_KEY
+      - key: DROPBOX_APP_KEY
         value: 2bi422xpd3xd962
-       key: DROPBOX_APP_SECRET
+      - key: DROPBOX_APP_SECRET
         value: j3yx0b41qdvfu86
-       key: DROPBOX_REFRESH_TOKEN
+      - key: DROPBOX_REFRESH_TOKEN
         value: RvyL03RE5qAAAAAAAAAAAVMVebvE7jDx8Okd0ploMzr85c6txvCRXpJAt30mxrKF
-       key: PORT
+      - key: PORT
         value: 10000
-      enabled: false
-    healthCheckPath: /health # Optional: Add if your API has a health check endpoint
 
   # Frontend web service
   - type: web
     name: apple-certificate-store
-    env: node
+    runtime: node
     plan: free
-    buildCommand: cd client && npm ci && npm run build
-    startCommand: cd client && npm install -g serve && serve -s dist -l $PORT
+    rootDir: client
+    buildCommand: npm install && npm run build
+    startCommand: npm install -g serve && serve -s dist -l $PORT
     envVars:
       - key: VITE_API_URL
         fromService:
           name: apple-certificate-api
           type: web
-          property: url # Updated to use 'property: url' for Render's free plan
-    autoScaling:
-      enabled: false
+          envVarKey: RENDER_EXTERNAL_URL
