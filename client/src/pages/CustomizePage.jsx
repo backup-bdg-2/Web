@@ -251,8 +251,9 @@ const CustomizePage = () => {
     });
   };
   
-  // Available entitlements with descriptions
+  // Available entitlements with descriptions - comprehensive list of Apple entitlements
   const availableEntitlements = [
+    // Essential entitlements
     {
       id: 'get-task-allow',
       name: 'get-task-allow',
@@ -273,6 +274,125 @@ const CustomizePage = () => {
       name: 'Keychain Access Groups',
       description: 'Allows sharing keychain items between apps'
     },
+    
+    // Security entitlements
+    {
+      id: 'com.apple.security.app-sandbox',
+      name: 'App Sandbox',
+      description: 'Contains damage to system and user data if app is compromised'
+    },
+    {
+      id: 'com.apple.security.network.server',
+      name: 'Network Server',
+      description: 'Allows listening for incoming network connections'
+    },
+    {
+      id: 'com.apple.security.network.client',
+      name: 'Network Client',
+      description: 'Allows opening outgoing network connections'
+    },
+    {
+      id: 'com.apple.security.device.camera',
+      name: 'Camera Access',
+      description: 'Allows interaction with built-in and external cameras'
+    },
+    {
+      id: 'com.apple.security.device.microphone',
+      name: 'Microphone Access',
+      description: 'Allows use of the microphone'
+    },
+    {
+      id: 'com.apple.security.device.usb',
+      name: 'USB Access',
+      description: 'Allows interaction with USB devices'
+    },
+    {
+      id: 'com.apple.security.device.bluetooth',
+      name: 'Bluetooth Access',
+      description: 'Allows interaction with Bluetooth devices'
+    },
+    {
+      id: 'com.apple.security.personal-information.addressbook',
+      name: 'Address Book Access',
+      description: 'Allows read-write access to contacts in user\'s address book'
+    },
+    {
+      id: 'com.apple.security.personal-information.location',
+      name: 'Location Access',
+      description: 'Allows access to location information from Location Services'
+    },
+    {
+      id: 'com.apple.security.personal-information.calendars',
+      name: 'Calendars Access',
+      description: 'Allows read-write access to user\'s calendar'
+    },
+    {
+      id: 'com.apple.security.personal-information.photos-library',
+      name: 'Photos Library Access',
+      description: 'Allows read-write access to user\'s Photos library'
+    },
+    {
+      id: 'com.apple.security.application-groups',
+      name: 'App Groups',
+      description: 'Allows sharing data between apps from the same developer'
+    },
+    {
+      id: 'com.apple.security.automation.apple-events',
+      name: 'Apple Events',
+      description: 'Allows sending Apple events to other apps'
+    },
+    {
+      id: 'com.apple.security.cs.allow-jit',
+      name: 'JIT Compilation',
+      description: 'Allows creating writable and executable memory using MAP_JIT flag'
+    },
+    {
+      id: 'com.apple.security.cs.allow-unsigned-executable-memory',
+      name: 'Unsigned Executable Memory',
+      description: 'Allows creating writable and executable memory without MAP_JIT restrictions'
+    },
+    {
+      id: 'com.apple.security.cs.allow-dyld-environment-variables',
+      name: 'DYLD Environment Variables',
+      description: 'Allows app to be affected by dynamic linker environment variables'
+    },
+    {
+      id: 'com.apple.security.cs.disable-library-validation',
+      name: 'Disable Library Validation',
+      description: 'Allows loading arbitrary plugins or frameworks without code signing'
+    },
+    {
+      id: 'com.apple.security.cs.disable-executable-page-protection',
+      name: 'Disable Executable Protection',
+      description: 'Disables all code signing protections during app execution'
+    },
+    {
+      id: 'com.apple.security.cs.debugger',
+      name: 'Debugger',
+      description: 'Allows app to attach to other processes or get task ports'
+    },
+    {
+      id: 'com.apple.security.device.audio-input',
+      name: 'Audio Input',
+      description: 'Allows recording audio using built-in microphone'
+    },
+    {
+      id: 'com.apple.security.hypervisor',
+      name: 'Hypervisor',
+      description: 'Allows creating and managing virtual machines'
+    },
+    {
+      id: 'com.apple.security.virtualization',
+      name: 'Virtualization',
+      description: 'Allows using the Virtualization framework'
+    },
+    {
+      id: 'com.apple.security.smartcard',
+      name: 'Smart Card',
+      description: 'Allows access to smart card slots and smart cards'
+    },
+    
+    // Networking entitlements
     {
       id: 'com.apple.developer.networking.vpn.api',
       name: 'VPN API',
@@ -299,19 +419,403 @@ const CustomizePage = () => {
       description: 'Provides access to WiFi network information'
     },
     {
+      id: 'com.apple.developer.networking.multicast',
+      name: 'Multicast',
+      description: 'Allows sending or receiving IP multicast traffic'
+    },
+    {
+      id: 'com.apple.developer.networking.manage-thread-network-credentials',
+      name: 'Thread Network',
+      description: 'Allows using ThreadNetwork'
+    },
+    {
+      id: 'com.apple.developer.networking.vmnet',
+      name: 'VM Networking',
+      description: 'Allows virtual machine networking capabilities'
+    },
+    {
+      id: 'com.apple.developer.associated-domains',
+      name: 'Associated Domains',
+      description: 'Enables universal links and shared web credentials'
+    },
+    {
+      id: 'com.apple.developer.associated-domains.applinks.read-write',
+      name: 'App Links Read-Write',
+      description: 'Allows app to use universal links'
+    },
+    
+    // Authentication and identity entitlements
+    {
+      id: 'com.apple.developer.authentication-services.autofill-credential-provider',
+      name: 'AutoFill Credential Provider',
+      description: 'Allows providing usernames and passwords for AutoFill'
+    },
+    {
+      id: 'com.apple.developer.applesignin',
+      name: 'Sign in with Apple',
+      description: 'Enables Sign in with Apple functionality'
+    },
+    {
+      id: 'com.apple.developer.secure-element-credential',
+      name: 'Secure Element Credential',
+      description: 'Allows using the SecureElementCredential framework'
+    },
+    {
+      id: 'com.apple.developer.secure-element-credential.default-contactless-app',
+      name: 'Default Contactless App',
+      description: 'Allows becoming the default contactless app'
+    },
+    
+    // Health and fitness entitlements
+    {
+      id: 'com.apple.developer.healthkit',
+      name: 'HealthKit',
+      description: 'Allows access to health and activity data'
+    },
+    {
+      id: 'com.apple.developer.healthkit.access',
+      name: 'HealthKit Capabilities',
+      description: 'Enables access to specific health data types'
+    },
+    {
+      id: 'com.apple.developer.healthkit.background-delivery',
+      name: 'HealthKit Background Delivery',
+      description: 'Allows receiving health updates while in background'
+    },
+    {
+      id: 'com.apple.developer.healthkit.recalibrate-estimates',
+      name: 'HealthKit Recalibration',
+      description: 'Allows recalibrating health prediction algorithms'
+    },
+    
+    // Home automation entitlements
+    {
+      id: 'com.apple.developer.homekit',
+      name: 'HomeKit',
+      description: 'Allows managing HomeKit-compatible accessories'
+    },
+    {
+      id: 'com.apple.developer.matter.allow-setup-payload',
+      name: 'Matter Setup Payload',
+      description: 'Allows providing Matter Setup payload for device setup'
+    },
+    
+    // iCloud entitlements
+    {
+      id: 'com.apple.developer.icloud-container-identifiers',
+      name: 'iCloud Container Identifiers',
+      description: 'Specifies container identifiers for iCloud production'
+    },
+    {
+      id: 'com.apple.developer.icloud-services',
+      name: 'iCloud Services',
+      description: 'Specifies iCloud services used by the app'
+    },
+    {
+      id: 'com.apple.developer.ubiquity-kvstore-identifier',
+      name: 'iCloud Key-Value Store',
+      description: 'Specifies container for iCloud key-value storage'
+    },
+    {
+      id: 'com.apple.developer.icloud-container-environment',
+      name: 'iCloud Container Environment',
+      description: 'Specifies development or production environment for iCloud'
+    },
+    
+    // Siri and voice entitlements
+    {
       id: 'com.apple.developer.siri',
       name: 'Siri',
       description: 'Enables Siri integration with your app'
     },
     {
-      id: 'com.apple.security.application-groups',
-      name: 'App Groups',
-      description: 'Allows sharing data between apps from the same developer'
+      id: 'com.apple.developer.calling-app',
+      name: 'Default Calling App',
+      description: 'Allows app to be the default calling app'
     },
+    {
+      id: 'com.apple.developer.messaging-app',
+      name: 'Default Messaging App',
+      description: 'Allows app to be the default messaging app'
+    },
+    {
+      id: 'com.apple.developer.push-to-talk',
+      name: 'Push to Talk',
+      description: 'Enables push-to-talk functionality'
+    },
+    
+    // Media and CarPlay entitlements
+    {
+      id: 'com.apple.developer.carplay-audio',
+      name: 'CarPlay Audio',
+      description: 'Enables audio playback in CarPlay'
+    },
+    {
+      id: 'com.apple.developer.carplay-charging',
+      name: 'CarPlay Charging',
+      description: 'Enables charging functionality in CarPlay'
+    },
+    {
+      id: 'com.apple.developer.carplay-communication',
+      name: 'CarPlay Communication',
+      description: 'Enables communication features in CarPlay'
+    },
+    {
+      id: 'com.apple.developer.carplay-maps',
+      name: 'CarPlay Maps',
+      description: 'Enables maps functionality in CarPlay'
+    },
+    {
+      id: 'com.apple.developer.carplay-parking',
+      name: 'CarPlay Parking',
+      description: 'Enables parking features in CarPlay'
+    },
+    {
+      id: 'com.apple.developer.carplay-quick-ordering',
+      name: 'CarPlay Quick Ordering',
+      description: 'Enables quick ordering features in CarPlay'
+    },
+    {
+      id: 'com.apple.developer.media-device-discovery-extension',
+      name: 'Media Device Discovery',
+      description: 'Adds third-party media receivers to system device-picker'
+    },
+    {
+      id: 'com.apple.developer.coremotion.head-pose',
+      name: 'Head Pose',
+      description: 'Uses head movement for spatialized sound orientation'
+    },
+    {
+      id: 'com.apple.developer.spatial-audio.profile-access',
+      name: 'Spatial Audio Profile',
+      description: 'Enables use of personalized spatial audio profile'
+    },
+    
+    // Payments and wallet entitlements
     {
       id: 'com.apple.developer.in-app-payments',
       name: 'In-App Payments',
       description: 'Enables payment processing in your app'
+    },
+    {
+      id: 'com.apple.developer.pass-type-identifiers',
+      name: 'Pass Type IDs',
+      description: 'Specifies pass types your app can access in Wallet'
+    },
+    {
+      id: 'com.apple.developer.in-app-identity-presentment',
+      name: 'In-App Identity Presentment',
+      description: 'Enables identity verification features'
+    },
+    {
+      id: 'com.apple.developer.proximity-reader.identity.display',
+      name: 'ID Verifier - Display Only',
+      description: 'Allows displaying identity verification information'
+    },
+    {
+      id: 'com.apple.developer.proximity-reader.identity.read',
+      name: 'ID Verifier - Data Transfer',
+      description: 'Allows reading identity verification data'
+    },
+    
+    // Game and entertainment entitlements
+    {
+      id: 'com.apple.developer.game-center',
+      name: 'Game Center',
+      description: 'Enables Game Center features like leaderboards'
+    },
+    {
+      id: 'com.apple.developer.group-session',
+      name: 'Group Session',
+      description: 'Allows implementing shared group experiences'
+    },
+    {
+      id: 'com.apple.developer.user-management',
+      name: 'User Management',
+      description: 'Allows distinguishing between multiple user accounts on Apple TV'
+    },
+    {
+      id: 'com.apple.developer.video-subscriber-single-sign-on',
+      name: 'TV Provider Authentication',
+      description: 'Enables TV Provider Authentication service'
+    },
+    
+    // Web and browser entitlements
+    {
+      id: 'com.apple.developer.web-browser',
+      name: 'Web Browser',
+      description: 'Allows app to act as the default web browser'
+    },
+    {
+      id: 'com.apple.developer.web-browser.public-key-credential',
+      name: 'Web Browser Public Key Credential',
+      description: 'Allows handling passkeys and security keys'
+    },
+    {
+      id: 'com.apple.developer.browser.app-installation',
+      name: 'Browser App Installation',
+      description: 'Enables browser to install alternative-distribution apps'
+    },
+    {
+      id: 'com.apple.developer.embedded-web-browser-engine',
+      name: 'Embedded Web Browser Engine',
+      description: 'Allows embedding a web browser engine'
+    },
+    
+    // Wireless and NFC entitlements
+    {
+      id: 'com.apple.external-accessory.wireless-configuration',
+      name: 'Wireless Accessory Configuration',
+      description: 'Allows configuring MFi Wi-Fi accessories'
+    },
+    {
+      id: 'com.apple.developer.nfc.readersession.formats',
+      name: 'NFC Tag Reader Formats',
+      description: 'Specifies NFC data formats app can read'
+    },
+    {
+      id: 'com.apple.developer.nfc.hce',
+      name: 'NFC Card Session',
+      description: 'Allows using the NFC card session API'
+    },
+    {
+      id: 'com.apple.developer.nfc.hce.default-contactless-app',
+      name: 'Default NFC Contactless App',
+      description: 'Allows being default app for contactless NFC'
+    },
+    
+    // Enterprise and advanced entitlements
+    {
+      id: 'com.apple.developer.coreml.neural-engine-access',
+      name: 'Apple Neural Engine Access',
+      description: 'Allows using Apple Neural Engine to speed up CoreML'
+    },
+    {
+      id: 'com.apple.developer.app-compute-category',
+      name: 'Increased Performance Headroom',
+      description: 'Allows adjusting thermal and performance thresholds'
+    },
+    {
+      id: 'com.apple.developer.screen-capture.include-passthrough',
+      name: 'Passthrough in Screen Capture',
+      description: 'Allows including passthrough in screen capture'
+    },
+    {
+      id: 'com.apple.developer.arkit.main-camera-access.allow',
+      name: 'Main Camera Access',
+      description: 'Allows ARKit to access main cameras on Apple Vision Pro'
+    },
+    {
+      id: 'com.apple.developer.arkit.object-tracking-parameter-adjustment.allow',
+      name: 'Object-tracking Parameter Adjustment',
+      description: 'Allows ARKit to track more objects with higher frequency'
+    },
+    {
+      id: 'com.apple.developer.arkit.barcode-detection.allow',
+      name: 'Spatial Barcode and QR Scanning',
+      description: 'Allows ARKit to detect and decode barcodes and QR codes'
+    },
+    {
+      id: 'com.apple.developer.avfoundation.uvc-device-access',
+      name: 'UVC Device Access',
+      description: 'Allows streaming USB UVC devices on visionOS'
+    },
+    {
+      id: 'com.apple.developer.kernel.increased-memory-limit',
+      name: 'Increased Memory Limit',
+      description: 'Allows core features to use higher memory limit'
+    },
+    {
+      id: 'com.apple.developer.kernel.extended-virtual-addressing',
+      name: 'Extended Virtual Addressing',
+      description: 'Allows access to extended address space'
+    },
+    {
+      id: 'com.apple.developer.sustained-execution',
+      name: 'Sustained Execution',
+      description: 'Enables consistent performance at sustainable levels'
+    },
+    {
+      id: 'com.apple.developer.persistent-content-capture',
+      name: 'Persistent Content Capture',
+      description: 'Allows VNC apps persistent access to screen capture'
+    },
+    
+    // Other specialized entitlements
+    {
+      id: 'com.apple.developer.ClassKit-environment',
+      name: 'ClassKit Environment',
+      description: 'Enables integration with Schoolwork app'
+    },
+    {
+      id: 'com.apple.developer.automatic-assessment-configuration',
+      name: 'Automatic Assessment Configuration',
+      description: 'Allows creating assessment sessions'
+    },
+    {
+      id: 'com.apple.developer.mail-client',
+      name: 'Default Mail Client',
+      description: 'Allows app to be the default email client'
+    },
+    {
+      id: 'com.apple.developer.exposure-notification',
+      name: 'Exposure Notification',
+      description: 'Allows using exposure notification system'
+    },
+    {
+      id: 'com.apple.developer.family-controls',
+      name: 'Family Controls',
+      description: 'Allows providing parental controls'
+    },
+    {
+      id: 'com.apple.developer.fileprovider.testing-mode',
+      name: 'File Provider Testing Mode',
+      description: 'Allows placing domains in testing mode'
+    },
+    {
+      id: 'com.apple.developer.journal.allow',
+      name: 'Journaling Suggestions',
+      description: 'Enables presenting journaling suggestions picker'
+    },
+    {
+      id: 'com.apple.developer.location.push',
+      name: 'Location Push',
+      description: 'Allows querying location in response to push notification'
+    },
+    {
+      id: 'com.apple.developer.managed-app-distribution.install-ui',
+      name: 'Managed App Installation UI',
+      description: 'Enables using Managed App Distribution'
+    },
+    {
+      id: 'com.apple.developer.sensitivecontentanalysis.client',
+      name: 'Sensitive Content Analysis',
+      description: 'Enables detecting nudity in images and video'
+    },
+    {
+      id: 'com.apple.developer.sensorkit.reader.allow',
+      name: 'SensorKit Reader',
+      description: 'Allows access to sensor data for research studies'
+    },
+    {
+      id: 'com.apple.developer.weatherkit',
+      name: 'WeatherKit',
+      description: 'Allows using WeatherKit for weather data'
+    },
+    {
+      id: 'com.apple.developer.translation-app',
+      name: 'Translation',
+      description: 'Allows app to be the default translation app'
+    },
+    {
+      id: 'com.apple.developer.navigation-app',
+      name: 'Default Navigation',
+      description: 'Allows app to be the default navigation app'
+    },
+    {
+      id: 'com.apple.developer.marketplace.app-installation',
+      name: 'Alternative App Marketplace',
+      description: 'Enables app to vend other apps as alternative marketplace'
     }
   ];
   
