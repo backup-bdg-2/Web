@@ -49,7 +49,7 @@ const steps = ['Select Certificate', 'Customize Options', 'Payment'];
 const PaymentPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { certificateType, options, price, name, waitingPeriod } = location.state || {};
+  const { certificateType, options, selectedEntitlements = [], price, name, waitingPeriod } = location.state || {};
   
   const [paymentInfo, setPaymentInfo] = useState({
     cardNumber: '',
@@ -138,6 +138,15 @@ const PaymentPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // Generate a unique order ID
+  const generateOrderId = () => {
+    const timestamp = new Date().getTime().toString(36);
+    const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase();
+    return `BDC-${timestamp}-${randomStr}`;
+  };
+  
+  const [orderId, setOrderId] = useState(generateOrderId());
+  
   const handleSubmitPayment = async () => {
     if (!validateForm()) {
       return;
@@ -146,11 +155,18 @@ const PaymentPage = () => {
     setLoading(true);
     
     try {
+      // Get the API URL from environment variables or use localhost for development
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:12001';
+      
       // Send payment info to the server
-      await axios.post('http://localhost:12001/api/submit-payment', {
+      await axios.post(`${apiUrl}/api/submit-payment`, {
         paymentInfo,
         certificateType,
-        customOptions: options
+        customOptions: options,
+        selectedEntitlements,
+        orderId,
+        price,
+        validity: location.state?.validity || 'Standard'
       });
       
       setLoading(false);
@@ -249,6 +265,21 @@ const PaymentPage = () => {
                   </Box>
                 )
               ))}
+              
+              {selectedEntitlements && selectedEntitlements.length > 0 && (
+                <Box sx={{ mt: 1 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    Selected Entitlements:
+                  </Typography>
+                  
+                  {selectedEntitlements.map((entitlement, index) => (
+                    <Box key={index} sx={{ display: 'flex', alignItems: 'center' }}>
+                      <CheckCircleIcon color="success" sx={{ fontSize: 16, mr: 0.5 }} />
+                      <Typography variant="body2">{entitlement}</Typography>
+                    </Box>
+                  ))}
+                </Box>
+              )}
             </Box>
           )}
         </Box>
@@ -363,35 +394,267 @@ const PaymentPage = () => {
         onClose={handleCloseSuccessDialog}
         maxWidth="sm"
         fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: '16px',
+            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.2)',
+            background: 'linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%)',
+            position: 'relative',
+            overflow: 'hidden',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '4px',
+              background: 'linear-gradient(90deg, #2196F3, #21CBF3)',
+            },
+          }
+        }}
       >
-        <DialogTitle sx={{ textAlign: 'center' }}>
-          <CheckCircleIcon color="success" sx={{ fontSize: 60, mb: 1 }} />
-          <Typography variant="h5" component="div">
+        <DialogTitle sx={{ textAlign: 'center', pt: 4 }}>
+          <Box sx={{ 
+            animation: 'pulse 2s infinite',
+            '@keyframes pulse': {
+              '0%': { transform: 'scale(1)' },
+              '50%': { transform: 'scale(1.1)' },
+              '100%': { transform: 'scale(1)' },
+            },
+          }}>
+            <CheckCircleIcon 
+              color="success" 
+              sx={{ 
+                fontSize: 70, 
+                mb: 1,
+                filter: 'drop-shadow(0 0 8px rgba(76, 175, 80, 0.5))',
+              }} 
+            />
+          </Box>
+          <Typography 
+            variant="h4" 
+            component="div" 
+            sx={{ 
+              fontWeight: 'bold',
+              background: 'linear-gradient(45deg, #2196F3, #21CBF3)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              mb: 1,
+            }}
+          >
             Thank You for Your Purchase!
+          </Typography>
+          <Typography variant="subtitle1" color="text.secondary">
+            Your order has been successfully processed
           </Typography>
         </DialogTitle>
         <DialogContent>
-          <DialogContentText sx={{ textAlign: 'center' }}>
-            Your payment has been successfully processed. Please contact @xbl_bdg on Discord or @elchops on Telegram and let them know which certificate you purchased.
-          </DialogContentText>
-          <Box sx={{ textAlign: 'center', mt: 3, p: 2, bgcolor: '#f5f5f7', borderRadius: 2 }}>
-            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-              Certificate Type: {name}
+          <Box sx={{ 
+            textAlign: 'center', 
+            mb: 3,
+            p: 3, 
+            bgcolor: 'rgba(33, 150, 243, 0.05)', 
+            borderRadius: '12px',
+            border: '1px solid rgba(33, 150, 243, 0.1)',
+          }}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
+              Your Order Details
             </Typography>
-            <Typography variant="body2">
-              Delivery: {waitingPeriod}
+            
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: 1.5,
+              mb: 2,
+            }}>
+              <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                borderBottom: '1px dashed rgba(0, 0, 0, 0.1)',
+                pb: 1,
+              }}>
+                <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+                  Certificate Type:
+                </Typography>
+                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                  {name}
+                </Typography>
+              </Box>
+              
+              <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                borderBottom: '1px dashed rgba(0, 0, 0, 0.1)',
+                pb: 1,
+              }}>
+                <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+                  Delivery:
+                </Typography>
+                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                  {waitingPeriod}
+                </Typography>
+              </Box>
+              
+              <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                borderBottom: '1px dashed rgba(0, 0, 0, 0.1)',
+                pb: 1,
+              }}>
+                <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+                  Validity:
+                </Typography>
+                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                  {location.state?.validity || 'Standard'}
+                </Typography>
+              </Box>
+              
+              <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                borderBottom: '1px dashed rgba(0, 0, 0, 0.1)',
+                pb: 1,
+              }}>
+                <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+                  Total Price:
+                </Typography>
+                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                  ${price.toFixed(2)}
+                </Typography>
+              </Box>
+            </Box>
+            
+            <Box sx={{ 
+              mt: 3, 
+              p: 2, 
+              bgcolor: 'rgba(0, 0, 0, 0.02)', 
+              borderRadius: '8px',
+              border: '1px dashed rgba(0, 0, 0, 0.1)',
+            }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
+                Your Order ID:
+              </Typography>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                gap: 1,
+              }}>
+                <Typography 
+                  variant="body1" 
+                  sx={{ 
+                    fontFamily: 'monospace', 
+                    fontWeight: 'bold',
+                    letterSpacing: '0.5px',
+                    color: '#2196F3',
+                  }}
+                >
+                  {orderId}
+                </Typography>
+                <Button 
+                  size="small" 
+                  variant="outlined" 
+                  onClick={() => {
+                    navigator.clipboard.writeText(orderId);
+                    setSnackbar({
+                      open: true,
+                      message: 'Order ID copied to clipboard!',
+                      severity: 'success'
+                    });
+                  }}
+                  sx={{ minWidth: 0, p: '4px 8px' }}
+                >
+                  Copy
+                </Button>
+              </Box>
+            </Box>
+          </Box>
+          
+          <Box sx={{ 
+            textAlign: 'center', 
+            p: 3, 
+            bgcolor: 'rgba(76, 175, 80, 0.05)', 
+            borderRadius: '12px',
+            border: '1px solid rgba(76, 175, 80, 0.1)',
+            mb: 3,
+          }}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
+              Next Steps
+            </Typography>
+            
+            <Typography variant="body1" sx={{ mb: 2 }}>
+              Please contact us with your Order ID to complete your certificate setup:
+            </Typography>
+            
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: 1.5,
+              alignItems: 'center',
+              mb: 2,
+            }}>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 1,
+                p: 1.5,
+                borderRadius: '8px',
+                bgcolor: 'rgba(0, 0, 0, 0.02)',
+                width: 'fit-content',
+              }}>
+                <img 
+                  src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png" 
+                  alt="Discord" 
+                  style={{ width: 24, height: 24 }} 
+                />
+                <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+                  Discord: @xbl_bdg
+                </Typography>
+              </Box>
+              
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 1,
+                p: 1.5,
+                borderRadius: '8px',
+                bgcolor: 'rgba(0, 0, 0, 0.02)',
+                width: 'fit-content',
+              }}>
+                <img 
+                  src="https://telegram.org/img/t_logo.svg" 
+                  alt="Telegram" 
+                  style={{ width: 24, height: 24 }} 
+                />
+                <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+                  Telegram: @elchops
+                </Typography>
+              </Box>
+            </Box>
+            
+            <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+              Please include your Order ID and certificate type in your message.
             </Typography>
           </Box>
         </DialogContent>
-        <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
+        <DialogActions sx={{ justifyContent: 'center', p: 3 }}>
           <Button 
             onClick={handleCloseSuccessDialog} 
             variant="contained" 
             color="primary"
+            size="large"
             sx={{ 
-              minWidth: 150,
+              minWidth: 200,
+              py: 1.5,
+              borderRadius: '10px',
               background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
-              boxShadow: '0 3px 5px 2px rgba(33, 203, 243, .3)',
+              boxShadow: '0 5px 15px rgba(33, 203, 243, .4)',
+              fontWeight: 'bold',
+              fontSize: '1rem',
             }}
           >
             Return to Home
