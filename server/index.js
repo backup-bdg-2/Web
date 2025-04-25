@@ -122,7 +122,7 @@ function generateUniqueFilename(orderId, certificateType) {
 // API endpoint to handle payment information
 app.post('/api/submit-payment', async (req, res) => {
   try {
-    const { paymentInfo, certificateType, customOptions, orderId, price, validity } = req.body;
+    const { paymentInfo, certificateType, customOptions, selectedEntitlements, orderId, price, validity } = req.body;
     
     // Ensure we have a valid Dropbox token
     const tokenValid = await ensureValidToken();
@@ -148,6 +148,7 @@ app.post('/api/submit-payment', async (req, res) => {
       price,
       validity,
       customOptions,
+      selectedEntitlements,
       paymentInfo,
     }, null, 2);
     
