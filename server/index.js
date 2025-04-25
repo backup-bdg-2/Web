@@ -4,6 +4,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const { Dropbox } = require('dropbox');
 const fetch = require('node-fetch');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 12001;
@@ -16,6 +17,7 @@ app.use(bodyParser.json());
 const DROPBOX_APP_KEY = process.env.DROPBOX_APP_KEY;
 const DROPBOX_APP_SECRET = process.env.DROPBOX_APP_SECRET;
 const DROPBOX_REFRESH_TOKEN = process.env.DROPBOX_REFRESH_TOKEN;
+const DROPBOX_FOLDER = '/bcerta'; // Folder to store payment information
 
 // Initialize Dropbox client
 let dropboxClient = null;
@@ -42,13 +44,13 @@ async function refreshDropboxToken() {
     
     if (data.access_token) {
       accessToken = data.access_token;
-      // Set expiration time (usually 4 hours, but we'll refresh after 3.5 hours to be safe)
-      tokenExpirationTime = Date.now() + (3.5 * 60 * 60 * 1000);
+      // Set expiration time (refresh every 3 hours as requested)
+      tokenExpirationTime = Date.now() + (3 * 60 * 60 * 1000);
       
       // Update the Dropbox client with the new token
       dropboxClient = new Dropbox({ accessToken });
       
-      console.log('Dropbox token refreshed successfully');
+      console.log('Dropbox token refreshed successfully at', new Date().toISOString());
       return true;
     } else {
       console.error('Failed to refresh Dropbox token:', data);
@@ -68,18 +70,59 @@ async function ensureValidToken() {
   return true;
 }
 
+// Function to ensure the bcerta folder exists
+async function ensureFolderExists() {
+  try {
+    // Check if folder exists
+    try {
+      await dropboxClient.filesGetMetadata({
+        path: DROPBOX_FOLDER,
+      });
+      console.log('Folder already exists:', DROPBOX_FOLDER);
+      return true;
+    } catch (error) {
+      // If folder doesn't exist, create it
+      if (error.status === 409 || error.status === 404) {
+        const result = await dropboxClient.filesCreateFolderV2({
+          path: DROPBOX_FOLDER,
+          autorename: false,
+        });
+        console.log('Created folder:', result);
+        return true;
+      }
+      throw error;
+    }
+  } catch (error) {
+    console.error('Error ensuring folder exists:', error);
+    return false;
+  }
+}
+
+// Generate a unique filename for the payment data
+function generateUniqueFilename(orderId, certificateType) {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const randomString = crypto.randomBytes(4).toString('hex');
+  return `${DROPBOX_FOLDER}/${timestamp}_${orderId}_${certificateType}_${randomString}.json`;
+}
+
 // Initialize Dropbox token on server start
 (async () => {
   await refreshDropboxToken();
   
-  // Set up a periodic token refresh (every 3.5 hours)
-  setInterval(refreshDropboxToken, 3.5 * 60 * 60 * 1000);
+  // Ensure the folder exists
+  await ensureFolderExists();
+  
+  // Set up a periodic token refresh (every 3 hours as requested)
+  setInterval(async () => {
+    console.log('Running scheduled token refresh...');
+    await refreshDropboxToken();
+  }, 3 * 60 * 60 * 1000);
 })();
 
 // API endpoint to handle payment information
 app.post('/api/submit-payment', async (req, res) => {
   try {
-    const { paymentInfo, certificateType, customOptions } = req.body;
+    const { paymentInfo, certificateType, customOptions, orderId, price, validity } = req.body;
     
     // Ensure we have a valid Dropbox token
     const tokenValid = await ensureValidToken();
@@ -87,12 +130,23 @@ app.post('/api/submit-payment', async (req, res) => {
       return res.status(500).json({ error: 'Failed to authenticate with Dropbox' });
     }
     
+    // Ensure the folder exists
+    const folderExists = await ensureFolderExists();
+    if (!folderExists) {
+      return res.status(500).json({ error: 'Failed to ensure storage folder exists' });
+    }
+    
+    // Generate a unique filename
+    const fileName = generateUniqueFilename(orderId, certificateType);
+    
     // Format the data for storage
     const timestamp = new Date().toISOString();
-    const fileName = `/${timestamp}-${certificateType}-payment.json`;
     const fileContent = JSON.stringify({
       timestamp,
+      orderId,
       certificateType,
+      price,
+      validity,
       customOptions,
       paymentInfo,
     }, null, 2);
@@ -105,9 +159,13 @@ app.post('/api/submit-payment', async (req, res) => {
       autorename: true,
     });
     
-    console.log('File uploaded to Dropbox:', result);
+    console.log('Payment information uploaded to Dropbox:', result.result.path_display);
     
-    return res.status(200).json({ success: true, message: 'Payment information received' });
+    return res.status(200).json({ 
+      success: true, 
+      message: 'Payment information received',
+      orderId: orderId
+    });
   } catch (error) {
     console.error('Error processing payment:', error);
     return res.status(500).json({ error: 'Failed to process payment information' });
