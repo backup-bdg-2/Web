@@ -146,8 +146,11 @@ const PaymentPage = () => {
     setLoading(true);
     
     try {
+      // Get the API URL from environment variables or use localhost for development
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:12001';
+      
       // Send payment info to the server
-      await axios.post('http://localhost:12001/api/submit-payment', {
+      await axios.post(`${apiUrl}/api/submit-payment`, {
         paymentInfo,
         certificateType,
         customOptions: options
