@@ -1,0 +1,70 @@
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Gradient backgrounds */
+.gradient-primary {
+  background: linear-gradient(45deg, #2196F3 30%, #21CBF3 90%);
+}
+
+.gradient-dark {
+  background: linear-gradient(45deg, #000000 30%, #333333 90%);
+}
+
+/* Card hover effects */
+.hover-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Button effects */
+.pulse-button {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(33, 150, 243, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(33, 150, 243, 0);
+  }
+}
+
+/* Glowing effect */
+.glow {
+  text-shadow: 0 0 10px rgba(33, 150, 243, 0.5);
+}
+
+/* Animated icons */
+.spin-icon {
+  animation: spin 10s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .mobile-stack {
+    flex-direction: column !important;
+  }
+  
+  .mobile-full-width {
+    width: 100% !important;
+  }
+}
