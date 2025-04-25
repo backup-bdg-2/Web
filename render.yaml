@@ -15,7 +15,6 @@ services:
         value: RvyL03RE5qAAAAAAAAAAAVMVebvE7jDx8Okd0ploMzr85c6txvCRXpJAt30mxrKF
       - key: PORT
         value: 10000
-    autoScaling: # Optional: Ensures free plan resource limits are respected
       enabled: false
     healthCheckPath: /health # Optional: Add if your API has a health check endpoint
 
