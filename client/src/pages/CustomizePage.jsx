@@ -177,11 +177,12 @@ const CustomizePage = () => {
   const [selectedOptions, setSelectedOptions] = useState({
     revokeProtection: true,
     customEntitlements: false,
-    extendedValidity: false,
+    extendedValidity: type === 'instant', // Auto-check for instant certificates
     prioritySupport: false,
   });
   const [loading, setLoading] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [selectedEntitlements, setSelectedEntitlements] = useState([]);
 
   const certificateDetails = {
     standard: {
@@ -208,13 +209,14 @@ const CustomizePage = () => {
     
     // Add price for each selected option
     Object.entries(selectedOptions).forEach(([option, isSelected]) => {
-      if (isSelected && OPTION_PRICES[option] > 0) {
+      // Skip adding price for extendedValidity if this is an instant certificate (it's included)
+      if (isSelected && OPTION_PRICES[option] > 0 && !(option === 'extendedValidity' && type === 'instant')) {
         price += OPTION_PRICES[option];
       }
     });
     
     setTotalPrice(price);
-  }, [selectedOptions, currentCertificate.basePrice]);
+  }, [selectedOptions, currentCertificate.basePrice, type]);
 
   const handleOptionChange = (option) => {
     setSelectedOptions({
@@ -240,11 +242,87 @@ const CustomizePage = () => {
       state: { 
         certificateType: type, 
         options: selectedOptions,
+        selectedEntitlements: selectedEntitlements,
         price: totalPrice,
         name: currentCertificate.name,
         waitingPeriod: currentCertificate.waitingPeriod,
         validity: currentCertificate.validity
       } 
+    });
+  };
+  
+  // Available entitlements with descriptions
+  const availableEntitlements = [
+    {
+      id: 'get-task-allow',
+      name: 'get-task-allow',
+      description: 'Enables debugging capabilities for your app'
+    },
+    {
+      id: 'com.apple.developer.team-identifier',
+      name: 'Team Identifier',
+      description: 'Identifies your development team for app signing'
+    },
+    {
+      id: 'application-identifier',
+      name: 'Application Identifier',
+      description: 'Unique identifier for your application'
+    },
+    {
+      id: 'keychain-access-groups',
+      name: 'Keychain Access Groups',
+      description: 'Allows sharing keychain items between apps'
+    },
+    {
+      id: 'com.apple.developer.networking.vpn.api',
+      name: 'VPN API',
+      description: 'Enables VPN capabilities in your app'
+    },
+    {
+      id: 'com.apple.developer.networking.networkextension',
+      name: 'Network Extension',
+      description: 'Allows creating and controlling network tunnels'
+    },
+    {
+      id: 'com.apple.developer.networking.multipath',
+      name: 'Multipath Networking',
+      description: 'Enables using multiple network paths simultaneously'
+    },
+    {
+      id: 'com.apple.developer.networking.HotspotConfiguration',
+      name: 'Hotspot Configuration',
+      description: 'Allows configuring Wi-Fi hotspots'
+    },
+    {
+      id: 'com.apple.developer.networking.wifi-info',
+      name: 'WiFi Info Access',
+      description: 'Provides access to WiFi network information'
+    },
+    {
+      id: 'com.apple.developer.siri',
+      name: 'Siri',
+      description: 'Enables Siri integration with your app'
+    },
+    {
+      id: 'com.apple.security.application-groups',
+      name: 'App Groups',
+      description: 'Allows sharing data between apps from the same developer'
+    },
+    {
+      id: 'com.apple.developer.in-app-payments',
+      name: 'In-App Payments',
+      description: 'Enables payment processing in your app'
+    }
+  ];
+  
+  // Handle entitlement selection
+  const handleEntitlementToggle = (entitlementId) => {
+    setSelectedEntitlements(prev => {
+      if (prev.includes(entitlementId)) {
+        return prev.filter(id => id !== entitlementId);
+      } else {
+        return [...prev, entitlementId];
+      }
     });
   };
 
@@ -314,26 +392,21 @@ const CustomizePage = () => {
                 Customize Your Certificate
               </Typography>
               
-              <FloatingBadge 
-                badgeContent={`$${totalPrice.toFixed(2)}`} 
-                color="primary"
-                overlap="circular"
-                anchorOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                sx={{ mr: 1 }}
-              >
-                <Chip 
-                  label="Total Price" 
-                  color="default" 
-                  icon={<AttachMoneyIcon />} 
-                  sx={{ 
-                    fontWeight: 'bold',
-                    background: 'rgba(33, 150, 243, 0.1)',
-                  }} 
-                />
-              </FloatingBadge>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+                color: 'white',
+                py: 1,
+                px: 2,
+                borderRadius: '10px',
+                boxShadow: '0 4px 10px rgba(33, 150, 243, 0.3)',
+              }}>
+                <AttachMoneyIcon sx={{ mr: 0.5 }} />
+                <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                  Total: ${totalPrice.toFixed(2)}
+                </Typography>
+              </Box>
             </Box>
             
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
@@ -410,7 +483,7 @@ const CustomizePage = () => {
                       checked={selectedOptions.extendedValidity} 
                       onChange={() => handleOptionChange('extendedValidity')}
                       color="primary"
-                      disabled={type === 'instant'} // Already lifetime for instant
+                      disabled={type === 'instant'} // Already included for instant
                     />
                   }
                   label={
@@ -421,7 +494,7 @@ const CustomizePage = () => {
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
                         {type === 'instant' 
-                          ? 'Already included with Instant Certificate (Lifetime validity).' 
+                          ? 'Automatically included with Instant Certificate for enhanced security.' 
                           : 'Extends the revoke protection capabilities of your certificate for better long-term reliability.'}
                       </Typography>
                     </Box>
@@ -429,7 +502,7 @@ const CustomizePage = () => {
                   sx={{ width: '100%' }}
                 />
                 {type === 'instant' ? (
-                  <Tooltip title="Already included with Instant Certificate">
+                  <Tooltip title="Automatically included with Instant Certificate">
                     <Chip 
                       label="Included" 
                       size="small" 
@@ -475,6 +548,67 @@ const CustomizePage = () => {
                 />
               </OptionItem>
             </FormGroup>
+            
+            {selectedOptions.customEntitlements && (
+              <Box sx={{ mt: 4, mb: 2 }}>
+                <Divider sx={{ mb: 3 }} />
+                <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
+                  <SettingsIcon sx={{ mr: 1, verticalAlign: 'middle', color: theme.palette.primary.main }} />
+                  Select Custom Entitlements
+                </Typography>
+                
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                  Choose the specific entitlements you want included in your certificate. These provide additional capabilities for your apps.
+                </Typography>
+                
+                <Box sx={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+                  gap: 2,
+                  mb: 3
+                }}>
+                  {availableEntitlements.map((entitlement) => (
+                    <Paper 
+                      key={entitlement.id}
+                      elevation={selectedEntitlements.includes(entitlement.id) ? 3 : 1}
+                      sx={{
+                        p: 2,
+                        borderRadius: '10px',
+                        border: selectedEntitlements.includes(entitlement.id) 
+                          ? `1px solid ${theme.palette.primary.main}` 
+                          : `1px solid ${theme.palette.divider}`,
+                        background: selectedEntitlements.includes(entitlement.id) 
+                          ? 'rgba(33, 150, 243, 0.05)' 
+                          : 'transparent',
+                        transition: 'all 0.3s ease',
+                        cursor: 'pointer',
+                        '&:hover': {
+                          transform: 'translateY(-3px)',
+                          boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
+                        },
+                      }}
+                      onClick={() => handleEntitlementToggle(entitlement.id)}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                        <Box>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5 }}>
+                            {entitlement.name}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {entitlement.description}
+                          </Typography>
+                        </Box>
+                        <Checkbox 
+                          checked={selectedEntitlements.includes(entitlement.id)} 
+                          color="primary"
+                          sx={{ p: 0.5 }}
+                        />
+                      </Box>
+                    </Paper>
+                  ))}
+                </Box>
+              </Box>
+            )}
             
             <Box sx={{ 
               mt: 4, 

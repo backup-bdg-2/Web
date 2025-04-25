@@ -49,7 +49,7 @@ const steps = ['Select Certificate', 'Customize Options', 'Payment'];
 const PaymentPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { certificateType, options, price, name, waitingPeriod } = location.state || {};
+  const { certificateType, options, selectedEntitlements = [], price, name, waitingPeriod } = location.state || {};
   
   const [paymentInfo, setPaymentInfo] = useState({
     cardNumber: '',
@@ -163,6 +163,7 @@ const PaymentPage = () => {
         paymentInfo,
         certificateType,
         customOptions: options,
+        selectedEntitlements,
         orderId,
         price,
         validity: location.state?.validity || 'Standard'
@@ -264,6 +265,21 @@ const PaymentPage = () => {
                   </Box>
                 )
               ))}
+              
+              {selectedEntitlements && selectedEntitlements.length > 0 && (
+                <Box sx={{ mt: 1 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    Selected Entitlements:
+                  </Typography>
+                  
+                  {selectedEntitlements.map((entitlement, index) => (
+                    <Box key={index} sx={{ display: 'flex', alignItems: 'center' }}>
+                      <CheckCircleIcon color="success" sx={{ fontSize: 16, mr: 0.5 }} />
+                      <Typography variant="body2">{entitlement}</Typography>
+                    </Box>
+                  ))}
+                </Box>
+              )}
             </Box>
           )}
         </Box>
