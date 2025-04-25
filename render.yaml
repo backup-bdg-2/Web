@@ -3,6 +3,7 @@ services:
   - type: web
     name: apple-certificate-api
     env: node
+    plan: free
     buildCommand: cd server && npm install
     startCommand: cd server && npm start
     envVars:
